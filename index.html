@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="icon" href="image.png" type="image/x-icon" />
+
+  <meta charset="UTF-8" />
+  <title>Crucigrama Interactivo</title>
+  <link rel="stylesheet" href="style.css" />
+  <head>
+  <!-- Tus otros tags -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet"
+
+</head>
+<body>
+  <h1 id="titulo">palabros</h1>
+
+
+  <div id="editor">
+    <h3>Agregar palabra</h3>
+    <form id="formPalabra">
+      <input type="text" id="inputPalabra" placeholder="Palabra" required minlength="2" />
+      <input type="text" id="inputPista" placeholder="Pista" required minlength="3" />
+
+      <label>
+        <input type="checkbox" id="modoManual" />
+        Ingresar ubicación manual
+      </label>
+
+      <div id="manualFields" style="display: none;">
+        <input type="number" id="inputFila" placeholder="Fila" min="0" />
+        <input type="number" id="inputCol" placeholder="Columna" min="0" />
+        <select id="inputDireccion">
+          <option value="H">Horizontal</option>
+          <option value="V">Vertical</option>
+        </select>
+      </div>
+
+      <button type="submit">Agregar</button>
+    </form>
+
+    <h4>Palabras cargadas</h4>
+    <ul id="listaPalabras"></ul>
+    <small id="modoEdicion" style="display:none;">✏️ Editando palabra</small>
+  </div>
+
+  <h2>Crucigrama</h2>
+  <div id="crucigrama"></div>
+
+  <h2>Pistas:</h2>
+  <ul id="pistas"></ul>
+
+  <button id="verificar">Verificar</button>
+  <p id="resultado"></p>
+
+<button id="guardarJSON">💾 Guardar crucigrama</button>
+<input type="file" id="cargarJSON" accept=".json" />
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
