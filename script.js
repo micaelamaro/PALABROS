@@ -38,6 +38,10 @@ form.addEventListener("submit", e => {
       palabras[indiceEditando].fila = fila;
       palabras[indiceEditando].col = col;
       palabras[indiceEditando].direccion = direccion;
+    } else {
+      delete palabras[indiceEditando].fila;
+      delete palabras[indiceEditando].col;
+      delete palabras[indiceEditando].direccion;
     }
     indiceEditando = null;
     document.getElementById("modoEdicion").style.display = "none";
@@ -67,8 +71,8 @@ function actualizarLista() {
     const li = document.createElement("li");
     li.innerHTML = `
       ${p.palabra} (${p.direccion || "-"}) - ${p.pista}
-      <button onclick="editarPalabra(${i})">✏️</button>
-      <button onclick="eliminarPalabra(${i})">🗑️</button>
+      <button onclick="editarPalabra(${i})" aria-label="Editar palabra ${p.palabra}">✏️</button>
+      <button onclick="eliminarPalabra(${i})" aria-label="Eliminar palabra ${p.palabra}">🗑️</button>
     `;
     listaPalabras.appendChild(li);
   });
@@ -164,7 +168,12 @@ function colocarPalabrasAutomatico(lista) {
 }
 
 function generarCrucigrama() {
-  if (palabras.length === 0) return;
+  if (palabras.length === 0) {
+    contenedor.innerHTML = "";
+    listaPistas.innerHTML = "";
+    resultado.textContent = "";
+    return;
+  }
 
   const maxFila = Math.max(...palabras.map(p =>
     p.direccion === "H" ? p.fila : p.fila + p.palabra.length - 1
@@ -229,6 +238,54 @@ function generarCrucigrama() {
       contenedor.appendChild(celdaWrapper);
     }
   }
+
+  // Guardar grilla para verificación
+  window.__grillaVerificacion = grilla;
+
+  // Poner foco en primer input habilitado
+  const primerInput = contenedor.querySelector("input:not([disabled])");
+  if (primerInput) primerInput.focus();
+
+  // --- Agregar eventos para resaltar pistas al pasar mouse por números ---
+
+  // Quitar eventos previos para evitar duplicados
+  const numeros = contenedor.querySelectorAll(".numero");
+  numeros.forEach(numeroDiv => {
+    numeroDiv.onmouseenter = null;
+    numeroDiv.onmouseleave = null;
+
+    numeroDiv.addEventListener("mouseenter", () => {
+      const num = parseInt(numeroDiv.textContent);
+      if (!num) return;
+      // Buscar palabra que tiene ese número
+      const palabra = palabras.find(p => p.numero === num);
+      if (!palabra) return;
+
+      // Resaltar todas las celdas de esa palabra
+      for (let i = 0; i < palabra.palabra.length; i++) {
+        const f = palabra.direccion === "H" ? palabra.fila : palabra.fila + i;
+        const c = palabra.direccion === "H" ? palabra.col + i : palabra.col;
+        const input = contenedor.querySelector(`input[data-fila="${f}"][data-col="${c}"]`);
+        if (input) {
+          input.classList.add("resaltada");
+        }
+      }
+      // También resaltar la pista en la lista
+      const pistaItem = listaPistas.querySelector(`li[data-numero="${num}"]`);
+      if (pistaItem) {
+        pistaItem.classList.add("resaltada");
+      }
+    });
+
+    numeroDiv.addEventListener("mouseleave", () => {
+      // Quitar resaltado
+      contenedor.querySelectorAll("input.resaltada").forEach(i => i.classList.remove("resaltada"));
+      listaPistas.querySelectorAll("li.resaltada").forEach(i => i.classList.remove("resaltada"));
+    });
+  });
+}
+
+// Mover cursor con flechas y Enter (unificado)
 contenedor.addEventListener("keydown", (e) => {
   const input = e.target;
   if (input.tagName !== "INPUT" || input.disabled) return;
@@ -236,40 +293,51 @@ contenedor.addEventListener("keydown", (e) => {
   const fila = parseInt(input.dataset.fila);
   const col = parseInt(input.dataset.col);
 
-  // Mover al siguiente casillero con flechas
-  let nextInput;
   switch (e.key) {
-    case "ArrowUp":
-      nextInput = document.querySelector(`input[data-fila="${fila - 1}"][data-col="${col}"]`);
+    case "ArrowUp": {
+      const nextInput = document.querySelector(`input[data-fila="${fila - 1}"][data-col="${col}"]`);
+      if (nextInput) {
+        e.preventDefault();
+        nextInput.focus();
+      }
       break;
-    case "ArrowDown":
-      nextInput = document.querySelector(`input[data-fila="${fila + 1}"][data-col="${col}"]`);
+    }
+    case "ArrowDown": {
+      const nextInput = document.querySelector(`input[data-fila="${fila + 1}"][data-col="${col}"]`);
+      if (nextInput) {
+        e.preventDefault();
+        nextInput.focus();
+      }
       break;
-    case "ArrowLeft":
-      nextInput = document.querySelector(`input[data-fila="${fila}"][data-col="${col - 1}"]`);
+    }
+    case "ArrowLeft": {
+      const nextInput = document.querySelector(`input[data-fila="${fila}"][data-col="${col - 1}"]`);
+      if (nextInput) {
+        e.preventDefault();
+        nextInput.focus();
+      }
       break;
-    case "ArrowRight":
-      nextInput = document.querySelector(`input[data-fila="${fila}"][data-col="${col + 1}"]`);
+    }
+    case "ArrowRight": {
+      const nextInput = document.querySelector(`input[data-fila="${fila}"][data-col="${col + 1}"]`);
+      if (nextInput) {
+        e.preventDefault();
+        nextInput.focus();
+      }
       break;
-    case "Enter":
+    }
+    case "Enter": {
       e.preventDefault();
-      // Ir al siguiente input válido
       const inputs = Array.from(contenedor.querySelectorAll("input:not([disabled])"));
       const indexActual = inputs.indexOf(input);
       const indexSiguiente = (indexActual + 1) % inputs.length;
       inputs[indexSiguiente].focus();
-      return;
-    default:
-      return;
-  }
-
-  if (nextInput) {
-    e.preventDefault();
-    nextInput.focus();
+      break;
+    }
   }
 });
 
-// Salto automático después de escribir una letra
+// Salto automático después de escribir letra
 contenedor.addEventListener("input", (e) => {
   const input = e.target;
   if (input.tagName !== "INPUT" || input.disabled) return;
@@ -277,7 +345,6 @@ contenedor.addEventListener("input", (e) => {
     const fila = parseInt(input.dataset.fila);
     const col = parseInt(input.dataset.col);
 
-    // Buscamos la palabra en la que está esta celda
     const palabraActual = palabras.find(p => {
       for (let i = 0; i < p.palabra.length; i++) {
         const f = p.direccion === "H" ? p.fila : p.fila + i;
@@ -303,26 +370,12 @@ contenedor.addEventListener("input", (e) => {
   }
 });
 
-  contenedor.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      const input = e.target;
-      if (input.tagName !== "INPUT" || input.disabled) return;
-      e.preventDefault();
-      const inputs = Array.from(contenedor.querySelectorAll("input:not([disabled])"));
-      const indexActual = inputs.indexOf(input);
-      const indexSiguiente = (indexActual + 1) % inputs.length;
-      inputs[indexSiguiente].focus();
-    }
-  });
-
-  window.__grillaVerificacion = grilla;
-}
-
 function mostrarPistas() {
   listaPistas.innerHTML = "";
   palabras.forEach(p => {
     const item = document.createElement("li");
     item.textContent = `${p.numero}. (${p.direccion}) ${p.pista}`;
+    item.dataset.numero = p.numero;
     listaPistas.appendChild(item);
   });
 }
@@ -350,32 +403,7 @@ document.getElementById("verificar").addEventListener("click", () => {
     : "❌ Hay errores. Revisá las letras marcadas.";
 });
 
-function resaltarPalabra(fila, col) {
-  // Limpiar anteriores
-  document.querySelectorAll(".celda.resaltada").forEach(el => {
-    el.classList.remove("resaltada");
-  });
-
-  const palabraActual = palabras.find(p => {
-    for (let i = 0; i < p.palabra.length; i++) {
-      const f = p.direccion === "H" ? p.fila : p.fila + i;
-      const c = p.direccion === "H" ? p.col + i : p.col;
-      if (f === fila && c === col) return true;
-    }
-    return false;
-  });
-
-  if (palabraActual) {
-    for (let i = 0; i < palabraActual.palabra.length; i++) {
-      const f = palabraActual.direccion === "H" ? palabraActual.fila : palabraActual.fila + i;
-      const c = palabraActual.direccion === "H" ? palabraActual.col + i : palabraActual.col;
-      const celda = document.querySelector(`input[data-fila="${f}"][data-col="${c}"]`);
-      if (celda) celda.classList.add("resaltada");
-    }
-  }
-}
-
-// GUARDAR JSON
+// Guardar crucigrama a JSON
 document.getElementById("guardarJSON").addEventListener("click", () => {
   const json = JSON.stringify(palabras, null, 2);
   const blob = new Blob([json], { type: "application/json" });
@@ -387,7 +415,7 @@ document.getElementById("guardarJSON").addEventListener("click", () => {
   URL.revokeObjectURL(url);
 });
 
-// CARGAR JSON
+// Cargar crucigrama desde JSON
 document.getElementById("cargarJSON").addEventListener("change", (e) => {
   const archivo = e.target.files[0];
   if (!archivo) return;
@@ -397,10 +425,11 @@ document.getElementById("cargarJSON").addEventListener("change", (e) => {
     try {
       const datos = JSON.parse(event.target.result);
       if (Array.isArray(datos)) {
-        palabras.length = 0; // limpiar array actual
+        palabras.length = 0;
         datos.forEach(p => palabras.push(p));
         actualizarLista();
-        generarCrucigrama(palabras);
+        generarCrucigrama();
+        mostrarPistas();
       } else {
         alert("El archivo no contiene un crucigrama válido.");
       }
@@ -411,7 +440,86 @@ document.getElementById("cargarJSON").addEventListener("change", (e) => {
   lector.readAsText(archivo);
 });
 
+// Función para codificar datos a base64 URL-safe
+function codificarBase64URI(str) {
+  return btoa(encodeURIComponent(str)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
+// Función para decodificar base64 URL-safe
+function decodificarBase64URI(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) {
+    str += '=';
+  }
+  return decodeURIComponent(atob(str));
+}
 
+// Al cargar la página, verificar si hay modo desafío
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const desafioEncoded = params.get('desafio');
 
+  if (desafioEncoded) {
+    try {
+      const json = decodificarBase64URI(desafioEncoded);
+      const datos = JSON.parse(json);
 
+      if (!datos || !Array.isArray(datos.palabras) || !datos.creador) {
+        alert("El link de desafío no es válido.");
+        return;
+      }
+
+      palabras.length = 0;
+      datos.palabras.forEach(p => palabras.push(p));
+
+      if(form) form.style.display = "none";
+      if(listaPalabras) listaPalabras.style.display = "none";
+      const modoManualCheck = document.getElementById("modoManual");
+      if(modoManualCheck) modoManualCheck.disabled = true;
+      const modoEdicion = document.getElementById("modoEdicion");
+      if(modoEdicion) modoEdicion.style.display = "none";
+      const guardarBtn = document.getElementById("guardarJSON");
+      if(guardarBtn) guardarBtn.style.display = "none";
+      const cargarInput = document.getElementById("cargarJSON");
+      if(cargarInput) cargarInput.style.display = "none";
+      const modoDesafioBtn = document.getElementById("modoDesafio");
+      if(modoDesafioBtn) modoDesafioBtn.style.display = "none";
+
+      resultado.textContent = `Modo Desafío activado. Creado por: ${datos.creador}`;
+
+      colocarPalabrasAutomatico(palabras);
+      generarCrucigrama();
+      mostrarPistas();
+
+    } catch (e) {
+      alert("Error al leer el link de desafío.");
+      console.error(e);
+    }
+  }
+});
+
+// Botón modo desafío que genera link con datos codificados en base64 URL-safe
+document.getElementById("modoDesafio").addEventListener("click", () => {
+  if (palabras.length === 0) {
+    alert("Primero agregá palabras para el crucigrama.");
+    return;
+  }
+
+  let nombreCreador = prompt("Ingresá tu nombre para el modo desafío:");
+  if (!nombreCreador) {
+    alert("El nombre es obligatorio para generar el link.");
+    return;
+  }
+
+  const dataParaCompartir = {
+    creador: nombreCreador,
+    palabras: palabras
+  };
+
+  const json = JSON.stringify(dataParaCompartir);
+  const encoded = codificarBase64URI(json);
+  const urlActual = window.location.origin + window.location.pathname;
+  const urlDesafio = `${urlActual}?desafio=${encoded}`;
+
+  prompt("Copiá este link para compartir el Modo Desafío:", urlDesafio);
+});

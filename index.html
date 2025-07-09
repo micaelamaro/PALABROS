@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<link rel="icon" href="image.png" type="image/x-icon" />
-
   <meta charset="UTF-8" />
-  <title>Crucigrama Interactivo</title>
-  <link rel="stylesheet" href="style.css" />
-  <head>
-  <!-- Tus otros tags -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet"
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PalaBROS</title>
 
+  <link rel="icon" href="image.png" type="image/x-icon" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barriecito&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1 id="titulo">palabros</h1>
-
+  <h1 id="titulo">palaBROS</h1>
 
   <div id="editor">
     <h3>Agregar palabra</h3>
@@ -45,17 +44,27 @@
     <small id="modoEdicion" style="display:none;">✏️ Editando palabra</small>
   </div>
 
-  <h2>Crucigrama</h2>
-  <div id="crucigrama"></div>
+  <!-- Main content: pistas y crucigrama lado a lado -->
+  <div id="mainContent" style="display: flex; gap: 20px;">
 
-  <h2>Pistas:</h2>
-  <ul id="pistas"></ul>
+    <div id="contenedorPistas" style="flex: 0 0 250px;">
+      <h2>Pistas:</h2>
+      <ol id="pistas" style="padding-left: 20px;"></ol>
+    </div>
 
-  <button id="verificar">Verificar</button>
-  <p id="resultado"></p>
+    <div style="flex: 1 1 auto;">
+      <h2>Crucigrama</h2>
+      <div id="crucigrama"></div>
 
-<button id="guardarJSON">💾 Guardar crucigrama</button>
-<input type="file" id="cargarJSON" accept=".json" />
+      <button id="verificar">Verificar</button>
+      <p id="resultado"></p>
+    </div>
+
+  </div>
+
+  <button id="guardarJSON">💾 Guardar crucigrama</button>
+  <input type="file" id="cargarJSON" accept=".json" />
+  <button id="modoDesafio">🕹️ Modo Desafío</button>
 
   <script src="script.js"></script>
 </body>

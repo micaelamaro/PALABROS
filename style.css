@@ -183,7 +183,101 @@ h1 {
 }
 
 
+#contenedorPistas {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+  max-height: 80vh;
+  overflow-y: auto;
+}
 
+#pistas {
+  list-style-type: decimal;
+  margin: 0;
+  padding-left: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2c3e50;
+}
+
+#pistas li {
+  margin-bottom: 8px;
+}
+
+/* SOLO FORMULARIO AGREGAR PALABRA - LAYOUT HORIZONTAL */
+#formPalabra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+#formPalabra input[type="text"],
+#formPalabra input[type="number"],
+#formPalabra select {
+  flex: 1 1 150px;
+  padding: 0.4rem;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 0; /* eliminamos margen para evitar vertical */
+}
+
+#formPalabra label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+#formPalabra label input[type="checkbox"] {
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+#manualFields {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+  flex: 1 1 auto;
+  margin-bottom: 0; /* sin margen extra */
+}
+
+#manualFields input,
+#manualFields select {
+  flex: 1 1 80px;
+  padding: 0.4rem;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 0; /* evitar margen vertical */
+}
+
+#formPalabra button[type="submit"] {
+  flex: 0 0 auto;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background-color: #8C5383;
+  color: white;
+  transition: background-color 0.2s;
+  margin-bottom: 0; /* quitar margen vertical */
+}
+
+#formPalabra button[type="submit"]:hover {
+  background-color: #92374D;
+}
 
 
 
